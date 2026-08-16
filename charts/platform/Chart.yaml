@@ -2,4 +2,4 @@ apiVersion: v2
 name: platform
 description: Helm chart for Kubernetes platform resources
 type: application
-version: 0.1.0
+version: 0.1.1
