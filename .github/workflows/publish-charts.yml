@@ -1,0 +1,90 @@
+name: Publish Charts
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "charts/**"
+
+  workflow_dispatch:
+
+concurrency:
+  group: publish-charts
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  OCI_REPOSITORY: ghcr.io/${{ github.repository_owner }}/charts
+
+jobs:
+  publish:
+    name: Publish Changed Charts
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v5
+
+      - name: Login to GHCR
+        shell: bash
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" |
+            helm registry login "${{ env.REGISTRY }}" \
+              --username "${{ github.actor }}" \
+              --password-stdin
+
+      - name: Find changed charts
+        id: changed
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          charts="$(
+            git diff --name-only HEAD^ HEAD -- 'charts/**' |
+              awk -F/ 'NF >= 3 {print $1 "/" $2}' |
+              sort -u
+          )"
+
+          echo "Changed charts:"
+          echo "${charts:-none}"
+
+          {
+            echo "charts<<EOF"
+            echo "$charts"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Package and publish charts
+        if: steps.changed.outputs.charts != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p .packages
+
+          while IFS= read -r chart; do
+            [[ -z "$chart" ]] && continue
+
+            echo "==> ${chart}"
+
+            helm dependency build "$chart"
+
+            package="$(
+              helm package "$chart" --destination .packages |
+                sed -n 's/^Successfully packaged chart and saved it to: //p'
+            )"
+
+            helm push \
+              "$package" \
+              "oci://${{ env.OCI_REPOSITORY }}"
+          done <<< "${{ steps.changed.outputs.charts }}"

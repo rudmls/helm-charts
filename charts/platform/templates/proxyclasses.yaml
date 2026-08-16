@@ -1,0 +1,18 @@
+{{- range .Values.proxyClasses }}
+---
+apiVersion: tailscale.com/v1alpha1
+kind: ProxyClass
+metadata:
+  name: {{ .name }}
+  namespace: {{ .namespace | default "tailscale" }}
+  {{- with .labels }}
+  labels:
+{{ toYaml . | indent 4 }}
+  {{- end }}
+  {{- with .annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+  {{- end }}
+spec:
+{{ toYaml .spec | indent 2 }}
+{{- end }}

@@ -1,0 +1,17 @@
+{{- range .Values.gatewayClasses }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: {{ .name }}
+{{- with .labels }}
+  labels:
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- with .annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+{{ toYaml .spec | indent 2 }}
+{{- end }}

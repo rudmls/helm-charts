@@ -1,0 +1,29 @@
+{{- range .Values.ciliumNetworkPolicies }}
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: {{ .name }}
+  namespace: {{ .namespace }}
+  {{- with .labels }}
+  labels:
+{{ toYaml . | indent 4 }}
+  {{- end }}
+  {{- with .annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+  {{- end }}
+spec:
+  endpointSelector:
+{{ toYaml .endpointSelector | indent 4 }}
+
+  {{- with .ingress }}
+  ingress:
+{{ toYaml . | indent 4 }}
+  {{- end }}
+
+  {{- with .egress }}
+  egress:
+{{ toYaml . | indent 4 }}
+  {{- end }}
+{{- end }}

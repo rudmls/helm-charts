@@ -1,0 +1,24 @@
+clusterIssuers: []
+
+gatewayClasses: []
+gateways: []
+envoyProxies: []
+
+httpRoutes: []
+
+networkPolicies: []
+ciliumNetworkPolicies: []
+
+proxyClasses: []
+tailscaleConnectors: []
+
+storageClasses: []
+
+postgresClusters: []
+postgresPoolers: []
+postgresRoles: []
+postgresDatabases: []
+
+configMaps: []
+referenceGrants: []
+clusterRoleBindings: []

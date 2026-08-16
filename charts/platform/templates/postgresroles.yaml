@@ -1,0 +1,10 @@
+{{- range .Values.postgresRoles }}
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: {{ .name }}
+  namespace: {{ .namespace | default "postgres" }}
+spec:
+{{ toYaml .spec | indent 2 }}
+{{- end }}

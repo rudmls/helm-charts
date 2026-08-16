@@ -1,0 +1,18 @@
+{{- range .Values.envoyProxies }}
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: {{ .name }}
+  namespace: {{ .namespace }}
+{{- with .labels }}
+  labels:
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- with .annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+{{ toYaml .spec | indent 2 }}
+{{- end }}
